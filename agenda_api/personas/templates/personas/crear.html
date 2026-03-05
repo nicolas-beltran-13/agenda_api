@@ -1,0 +1,63 @@
+{%extends 'personas/base.html'%}
+{%block content%}
+
+<h2>Registrar Persona</h2>
+<form id="formulario" class="card p-4 shadow">
+        <input class="form-control mb-2" id="documento" placeholder="documento">
+        <input class="form-control mb-2" id="nombre" placeholder="nombre">
+        <input class="form-control mb-2" id="apellido" placeholder="apellido">
+        <input class="form-control mb-2" id="correo" placeholder="correo">
+        <select class="form-control mb-2" id="pais">
+            <option value="">Seleccione un país</option>
+        </select>
+        <select class="form-control mb-2" id="ciudad">
+            <option value="">Seleccione una ciudad</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+<script>
+    async function cargarPaises(){
+        const res = await fetch('/api/paises');
+        const paises = await res.json();
+        const select = document.getElementById('pais');
+        select.innerHTML = '<option value="">Seleccione un país</option>';
+        paises.forEach(p => {
+            select.innerHTML += `<option value="${p}">${p}</option>`;
+        });
+    }
+
+    document.getElementById("pais").addEventListener('change', async function(){
+        const pais = this.value;
+        const res = await fetch(`/api/ciudades/${pais}/`);
+        const ciudades = await res.json();
+        const select = document.getElementById('ciudad');
+        select.innerHTML = '<option value="">Seleccione una ciudad</option>';
+        ciudades.forEach(c => {
+            select.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+    });
+
+    document.getElementById("formulario").addEventListener("submit", async function(e){
+        e.preventDefault();
+        const data = {
+            documento: document.getElementById('documento').value,
+            nombre: document.getElementById('nombre').value,
+            apellido: document.getElementById('apellido').value,
+            email: document.getElementById('correo').value,
+            pais: document.getElementById('pais').value,
+            ciudad: document.getElementById('ciudad').value
+        };
+        await fetch('/api/personas/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        window.location.href = '/';
+    });
+
+    cargarPaises();
+</script>
+{%endblock%}

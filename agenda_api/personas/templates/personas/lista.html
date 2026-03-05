@@ -1,0 +1,48 @@
+{%extends 'personas/base.html' %}
+
+{% block content %}
+    <h2>Lista de Personas</h2>
+    <table class="table table-bodered">
+        <thead class ="table-dark">
+            <tr>
+                <th>Documento</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>ciudad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla">
+            
+        </tbody>
+    </table>
+    <script>
+        async function cargarPersonas(){
+            const res = await fetch('/api/personas/');
+            const result= await res.json();
+            const tabla = document.getElementById('tabla');
+            tabla.innerHTML = '';
+            result.data.forEach(persona => {
+                tabla.innerHTML += `
+                <tr>
+                    <td>${persona.documento}</td>
+                    <td>${persona.nombre}</td>
+                    <td>${persona.apellido}</td>
+                    <td>${persona.email}</td>
+                    <td>${persona.ciudad}</td>
+                    <td>
+                        <a href="/editar/${persona.id}/" class="btn btn-warning btn-sm">Editar</a>
+                        <button onclick="eliminarPersona(${persona.id})" class="btn btn-danger btn-sm">Eliminar</button>
+                    </td>
+                </tr>
+                `;
+            });
+        }
+        async function eliminarPersona(id){
+           await fetch(`/api/personas/${id}/`, {method: 'DELETE'});
+           cargarPersonas();
+        }
+        cargarPersonas();
+    </script>
+{% endblock %}
